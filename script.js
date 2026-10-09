@@ -1,8 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const currentYear = new Date().getFullYear();
-  const setTitle = () => {
-    document.title = "AlphaTech | ألفاتك لأنظمة المراقبة";
-  };
-
-  setTitle();
+  const yearEl = document.getElementById("year");
+  if (yearEl) {
+    yearEl.textContent = new Date().getFullYear();
+  }
 });
