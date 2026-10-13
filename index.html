@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CamZone | رؤية أبعد، أمان أكيد</title>
+    <title>CamZone | الرئيسية</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,14 +18,107 @@
         </nav>
     </header>
 
-    <section class="container hero">
-        <h1 style="font-size: 42px; margin-bottom: 15px;">منظومة <span style="color: #FF5722;">CamZone</span> للأمن الذكي</h1>
-        <p style="font-size: 22px; color: #A0AEC0; margin-bottom: 40px;">رؤية أبعد، أمان أكيد</p>
-        <div style="gap: 20px; display: flex; justify-content: center; flex-wrap: wrap;">
-            <a href="shop.html" class="btn" style="width: auto;">تصفح المنتجات</a>
-            <a href="services.html" class="btn btn-secondary" style="width: auto;">طلب تركيب أو صيانة</a>
+    <!-- شريط العروض العلوي النيون -->
+    <div style="background: #FF5722; color: #fff; text-align: center; padding: 8px; font-weight: bold; font-size: 14px;">
+        🔥 خصم 10% بمناسبة الافتتاح على خطط التركيب والبرمجة الكاملة للمنازل والمحلات!
+    </div>
+
+    <!-- قسم الواجهة الجذاب بصورة أمنية تقنية خلفية مجانية حية -->
+    <section class="container" style="display: flex; align-items: center; justify-content: space-between; padding: 60px 5%; flex-wrap: wrap; gap: 30px;">
+        <div style="flex: 1; min-width: 300px;">
+            <h1 style="font-size: 42px; line-height: 1.3; margin-bottom: 15px;">منظومة <span style="color: #FF5722;">CamZone</span> المتكاملة للأمن الذكي</h1>
+            <p style="font-size: 20px; color: #A0AEC0; margin-bottom: 30px;">رؤية أبعد، أمان أكيد</p>
+            <div style="display: flex; gap: 15px;">
+                <a href="shop.html" class="btn" style="padding: 12px 25px;">تصفح العروض الحية</a>
+                <a href="services.html" class="btn" style="background:#3A506B; padding: 12px 25px;">خدمات البرمجة والتركيب</a>
+            </div>
+        </div>
+        <div style="flex: 1; min-width: 300px; text-align: center;">
+            <img src="https://unsplash.com" alt="Security Camera" style="width: 100%; max-width: 500px; border-radius: 8px; border: 2px solid #FF5722; box-shadow: 0 0 15px rgba(255,87,34,0.3);">
         </div>
     </section>
 
+    <!-- قسم معرض الأعمال التفاعلي المتغير سحبًا (Horizontal Scroll) -->
+    <section class="container" style="border-top: 1px solid #3A506B; padding-top: 40px;">
+        <h2 style="color: #FF5722; margin-bottom: 10px; border-right: 4px solid #FF5722; padding-right: 15px;">📐 معرض أعمالنا الفنية (دقة التركيب والتنظيم)</h2>
+        <p style="color: #A0AEC0; margin-bottom: 20px;">صور حية لآلية تمديد الأسلاك الهندسية المعزولة داخل المواسير وحماية الأنظمة</p>
+        <div class="gallery">
+            <img src="https://unsplash.com" alt="Installation 1">
+            <img src="https://unsplash.com" alt="Installation 2">
+            <img src="https://unsplash.com" alt="Installation 3">
+            <img src="https://unsplash.com" alt="Installation 4">
+        </div>
+    </section>
+
+    <!-- حاسبة الباقات الذكية والتفاعلية عبر الجافا سكريبت -->
+    <section class="container" style="margin-bottom: 60px;">
+        <div class="calculator">
+            <h2 style="color: #FF5722; margin-bottom: 20px;">🧮 حاسبة التكلفة الفورية والذكية للباقات</h2>
+            <p style="color: #A0AEC0; margin-bottom: 25px;">اختر مكونات سيستم المراقبة الذي تريده، واعرف السعر المبدئي شاملاً التوريد والبرمجة فوراً:</p>
+            
+            <div class="calc-group">
+                <label>اختر نوع النظام التقني:</label>
+                <select id="sysType" onchange="calculatePrice()">
+                    <option value="analog">تأريض تماثلي HD-Analog (اقتصادي للمنازل والمحلات)</option>
+                    <option value="ip">أنظمة شبكات ذكية IP (عالية الدقة للشركات والمساحات المفتوحة)</option>
+                </select>
+            </div>
+
+            <div class="calc-group">
+                <label>عدد الكاميرات المطلوبة (شامل مستلزماتها وجهاز التسجيل والباور):</label>
+                <select id="camCount" onchange="calculatePrice()">
+                    <option value="2">عدد 2 كاميرا مراقبة</option>
+                    <option value="4">عدد 4 كاميرات مراقبة</option>
+                    <option value="8">عدد 8 كاميرات مراقبة</option>
+                </select>
+            </div>
+
+            <div class="calc-group">
+                <label>مساحة التخزين المطلوبة (الهارد ديسك Purple الأصلي):</label>
+                <select id="hddSize" onchange="calculatePrice()">
+                    <option value="500">هارد ديسك 500 جيجا (تسجيل أسبوع تقريباً)</option>
+                    <option value="1000">هارد ديسك 1 تيرا (تسجيل شهر تقريباً)</option>
+                </select>
+            </div>
+
+            <div style="margin-top: 30px; background: #0B132B; padding: 20px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <span style="font-size: 20px; color: #fff;">إجمالي التكلفة التقريبية للسيستم:</span>
+                    <div id="totalPrice" style="font-size: 32px; color: #FF5722; font-weight: bold; margin-top: 5px;">4,750 ج.م</div>
+                </div>
+                <a id="orderCalcBtn" href="https://m.meً كام زون، قمت بحساب تكلفة سيستم باقتي عبر حاسبة الموقع وأريد حجزها" target="_blank" class="btn" style="width: auto; padding: 12px 30px;">طلب هذه الباقة الآن عبر ماسنجر 💬</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- جافا سكريبت لتحديث حاسبة الباقات تلقائياً -->
+    <script>
+        function calculatePrice() {
+            let sysType = document.getElementById('sysType').value;
+            let camCount = parseInt(document.getElementById('camCount').value);
+            let hddSize = document.getElementById('hddSize').value;
+            let basePrice = 0;
+
+            if (sysType === 'analog') {
+                if (camCount === 2) basePrice = 2900;
+                else if (camCount === 4) basePrice = 4750;
+                else if (camCount === 8) basePrice = 8900;
+            } else if (sysType === 'ip') {
+                if (camCount === 2) basePrice = 5200;
+                else if (camCount === 4) basePrice = 8500;
+                else if (camCount === 8) basePrice = 16000;
+            }
+
+            if (hddSize === '1000') {
+                basePrice += 1000; // فرق السعر للهارد 1 تيرا
+            }
+
+            document.getElementById('totalPrice').innerText = basePrice.toLocaleString('ar-EG') + " ج.م";
+            
+            // تحديث رابط الرسالة التلقائية في زر المراسلة بالماسنجر
+            let message = `أهلاً كام زون، قمت بحساب الباقة عبر موقعكم وأريد طلب سيستم: نظام ${sysType === 'analog' ? 'Analog' : 'IP'} بعدد ${camCount} كاميرات وهارد ${hddSize} جيجا. السعر التقريبي: ${basePrice} جنيه.`;
+            document.getElementById('orderCalcBtn').href = "https://m.me" + encodeURIComponent(message);
+        }
+    </script>
 </body>
 </html>
