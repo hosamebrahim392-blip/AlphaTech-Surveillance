@@ -2,11 +2,11 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CamZone | مخطط شبكات الموبايل المتكامل</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CamZone | مخطط شبكات الموبايل</title>
     <link href="https://googleapis.com" rel="stylesheet">
-    <script src="https://cloudflare.com"></script>
     <style>
+        /* إعدادات ألوان متوازنة ومريحة للموبايل */
         body {
             font-family: 'Cairo', sans-serif;
             background-color: #090d16; 
@@ -17,30 +17,33 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            overscroll-behavior-y: contain; 
+            /* منع المتصفح من سحب وتحديث الصفحة بالخطأ */
+            overscroll-behavior: contain;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
-        h1 { font-size: 20px; margin-bottom: 5px; color: #f8fafc; text-align: center; }
-        p { font-size: 13px; color: #94a3b8; margin: 0 0 15px 0; text-align: center; }
+        h1 { font-size: 18px; margin: 5px 0; text-align: center; }
+        p { font-size: 12px; color: #94a3b8; margin: 0 0 10px 0; }
 
         .controls {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 15px;
+            gap: 6px;
+            margin-bottom: 10px;
             width: 100%;
-            max-width: 420px;
+            max-width: 360px;
         }
 
         button, .file-label {
             flex: 1;
-            min-width: 90px;
-            padding: 12px 5px;
+            min-width: 80px;
+            padding: 10px 2px;
             color: #ffffff;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
             text-align: center;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
@@ -49,121 +52,167 @@
         .btn-cam { background-color: #0284c7; } 
         .btn-dvr { background-color: #dc2626; } 
         .btn-wire { background-color: #16a34a; } 
-        .btn-upload { background-color: #6b21a8; display: inline-block; }
-
-        button:active, .file-label:active { 
-            transform: scale(0.95);
-            filter: brightness(1.2); 
-        }
-
+        .btn-upload { background-color: #6b21a8; }
         #upload-plan { display: none; }
 
+        /* منطقة الرسم المصلحة والمحمية من التهنيج */
         #canvas-container {
-            border: 3px solid #334155; 
+            border: 2px solid #334155; 
             background-color: #e2e8f0; 
-            border-radius: 12px;
+            border-radius: 8px;
+            position: relative;
+            touch-action: none; /* إيقاف حركات الموبايل التلقائية داخل المربع */
+            width: 340px;
+            height: 380px;
             overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            touch-action: none;
-            -webkit-user-select: none;
-            user-select: none;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
 <body>
 
-    <h1>مخطط شبكات <span style="color: #0ea5e9;">Cam</span><span style="color: #22c55e;">Zone</span></h1>
-    <p>ارفع كروكي الموقع ثم وزع الكاميرات وشد الأسلاك بإصبعك</p>
+    <h1>مخطط <span style="color: #0ea5e9;">Cam</span><span style="color: #22c55e;">Zone</span> الذكي</h1>
+    <p>ارفع الكروكي، اضغط على المكون ثم اسحبه لمكانه بإصبعك</p>
 
     <div class="controls">
-        <!-- زر رفع كروكي أو مخطط الموقع -->
-        <label for="upload-plan" class="file-label btn-upload">🗺️ رفع المخطط</label>
-        <input type="file" id="upload-plan" accept="image/*" onchange="loadBackground(event)">
+        <label for="upload-plan" class="file-label btn-upload">🗺️ المخطط</label>
+        <input type="file" id="upload-plan" accept="image/*" onchange="handleBackground(event)">
         
-        <button class="btn-cam" onclick="addCamera()">📷 كاميرا</button>
-        <button class="btn-dvr" onclick="addDVR()">📟 DVR</button>
-        <button class="btn-wire" onclick="startCable()">🧵 سلك</button>
+        <button class="btn-cam" onclick="createItem('cam')">📷 كاميرا</button>
+        <button class="btn-dvr" onclick="createItem('dvr')">📟 DVR</button>
+        <button class="btn-wire" onclick="createItem('wire')">🧵 سلك</button>
     </div>
 
+    <!-- حاوية الرسم الثابتة والمصلحة للموبايل -->
     <div id="canvas-container">
         <canvas id="mapCanvas"></canvas>
     </div>
 
     <script>
-        const canvasWidth = Math.min(window.innerWidth - 24, 420);
-        const canvasHeight = 420;
+        const canvas = document.getElementById('mapCanvas');
+        const ctx = canvas.getContext('2d');
         
-        const canvas = new fabric.Canvas('mapCanvas', {
-            width: canvasWidth,
-            height: canvasHeight,
-            backgroundColor: '#e2e8f0',
-            allowTouchScrolling: false 
-        });
+        // ضبط أبعاد البيكسل الحقيقية داخل اللوحة
+        canvas.width = 340;
+        canvas.height = 380;
 
-        // دالة رفع وقراءة صورة مخطط الموقع وجعلها خلفية للوحة الرسم
-        function loadBackground(e) {
+        let items = [];
+        let selectedItem = null;
+        let isDragging = false;
+        let bgImage = null;
+
+        // دالة رفع المخطط أو الكروكي كخلفية ثابتة
+        function handleBackground(e) {
             const reader = new FileReader();
-            reader.onload = function (event) {
-                const imgObj = new Image();
-                imgObj.src = event.target.result;
-                imgObj.onload = function () {
-                    const image = new fabric.Image(imgObj);
-                    // ضبط مقاس الصورة المرفوعة لتناسب أبعاد اللوحة تماماً
-                    image.set({
-                        scaleX: canvasWidth / image.width,
-                        scaleY: canvasHeight / image.height,
-                        selectable: false
-                    });
-                    canvas.setBackgroundImage(image, canvas.renderAll.bind(canvas));
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    bgImage = img;
+                    drawEverything();
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(e.target.files)[0];
+        }
+
+        // دالة إنشاء الأجهزة الملونة (كاميرا، DVR، سلك) بأبعاد لمس واضحة
+        function createItem(type) {
+            let newItem = {
+                id: Date.now(),
+                type: type,
+                x: 50 + (items.length * 20) % 200,
+                y: 50 + (items.length * 20) % 200,
+                w: type === 'dvr' ? 50 : (type === 'wire' ? 60 : 36),
+                h: type === 'dvr' ? 30 : (type === 'wire' ? 10 : 36),
+                color: type === 'cam' ? '#0ea5e9' : (type === 'dvr' ? '#ef4444' : '#22c55e')
+            };
+            items.push(newItem);
+            drawEverything();
+        }
+
+        // محرك الرسم الرئيسي لتحديث الشاشة فورياً عند اللمس
+        function drawEverything() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 1. رسم الكروكي المرفوع أولاً
+            if (bgImage) {
+                ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+            }
+
+            // 2. رسم الأجهزة والأسلاك فوق الكروكي
+            items.forEach(item => {
+                ctx.fillStyle = item.color;
+                if (item.type === 'cam') {
+                    // رسم الكاميرا كدائرة زاهية بداخلها نص
+                    ctx.beginPath();
+                    ctx.arc(item.x + 18, item.y + 18, 18, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 10px Cairo';
+                    ctx.fillText('CAM', item.x + 8, item.y + 22);
+                } else if (item.type === 'dvr') {
+                    // رسم الـ DVR كمستطيل غامق
+                    ctx.fillRect(item.x, item.y, item.w, item.h);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 10px Cairo';
+                    ctx.fillText('DVR', item.x + 15, item.y + 20);
+                } else if (item.type === 'wire') {
+                    // رسم السلك كخط سميك وممتد
+                    ctx.fillRect(item.x, item.y, item.w, item.h);
+                }
+            });
+        }
+
+        // أكواد استشعار وإصلاح اللمس المتعدد على شاشة الموبايل الضعيف
+        function getTouchPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            return {
+                x: touch.clientX - rect.left,
+                y: touch.clientY - rect.top
+            };
+        }
+
+        canvas.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            const pos = getTouchPos(e);
+            
+            // التحقق من الجهاز الذي لمسه الفني بإصبعه
+            for (let i = items.length - 1; i >= 0; i--) {
+                let item = items[i];
+                if (pos.x >= item.x && pos.x <= item.x + item.w && pos.y >= item.y && pos.y <= item.y + item.h) {
+                    selectedItem = item;
+                    isDragging = true;
+                    break;
                 }
             }
-            reader.readAsDataURL(e.target.files[0]);
-        }
+        });
 
-        // إضافة كاميرا (تم استبدال الإيموجي بأشكال صريحة لضمان الظهور الفوري)
-        function addCamera() {
-            const circle = new fabric.Circle({ radius: 16, fill: '#0ea5e9', originX: 'center', originY: 'center' });
-            const text = new fabric.Text('CAM', { fontSize: 10, fill: '#ffffff', fontWeight: 'bold', originX: 'center', originY: 'center' });
+        canvas.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+            if (!isDragging || !selectedItem) return;
             
-            const camGroup = new fabric.Group([circle, text], {
-                left: 50,
-                top: 50,
-                hasControls: false
-            });
-            canvas.add(camGroup);
-            canvas.setActiveObject(camGroup);
-            canvas.renderAll();
-        }
-
-        // إضافة DVR بشكل هندسي يظهر على كافة شاشات الهواتف
-        function addDVR() {
-            const rect = new fabric.Rect({ width: 50, height: 30, fill: '#ef4444', rx: 4, ry: 4, originX: 'center', originY: 'center' });
-            const text = new fabric.Text('DVR', { fontSize: 10, fill: '#ffffff', fontWeight: 'bold', originX: 'center', originY: 'center' });
+            const pos = getTouchPos(e);
+            // تحديث مكان الجهاز مع حركة الإصبع فوراً
+            selectedItem.x = pos.x - (selectedItem.w / 2);
+            selectedItem.y = pos.y - (selectedItem.h / 2);
             
-            const dvrGroup = new fabric.Group([rect, text], {
-                left: 150,
-                top: 150,
-                hasControls: false
-            });
-            canvas.add(dvrGroup);
-            canvas.setActiveObject(dvrGroup);
-            canvas.renderAll();
-        }
+            drawEverything();
+        });
 
-        // شد سلك مرن وقابل للمط والتحريك باللمس
-        function startCable() {
-            const line = new fabric.Line([40, 80, 160, 80], {
-                strokeWidth: 6, 
-                stroke: '#22c55e', 
-                originX: 'center',
-                originY: 'center',
-                hasControls: true, 
-                padding: 15 
-            });
-            canvas.add(line);
-            canvas.setActiveObject(line);
-            canvas.renderAll();
-        }
+        canvas.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            isDragging = false;
+            selectedItem = null;
+        });
+
     </script>
 </body>
 </html>
