@@ -7,10 +7,9 @@
     <link href="https://googleapis.com" rel="stylesheet">
     <script src="https://cloudflare.com"></script>
     <style>
-        /* التوزيع المرن للألوان (غامق، فاتح، زاهي) */
         body {
             font-family: 'Cairo', sans-serif;
-            background-color: #090d16; /* لون غامق جداً للخلفية العامة */
+            background-color: #090d16; 
             color: #ffffff;
             margin: 0;
             padding: 10px;
@@ -23,18 +22,17 @@
         h1 { 
             font-size: 20px; 
             margin-bottom: 5px; 
-            color: #f8fafc; /* لون فاتح ناصع للعناوين */
+            color: #f8fafc; 
             text-align: center;
         }
 
         p { 
             font-size: 13px; 
-            color: #94a3b8; /* لون رمادي هادي للشروحات */
+            color: #94a3b8; 
             margin: 0 0 15px 0; 
             text-align: center; 
         }
 
-        /* أزرار زاهية ملونة لسهولة التمييز */
         .controls {
             display: flex;
             gap: 8px;
@@ -56,20 +54,18 @@
             transition: transform 0.1s;
         }
 
-        /* ألوان الأزرار المخصصة */
-        .btn-cam { background-color: #0284c7; } /* أزرق زاهي للكاميرا */
-        .btn-dvr { background-color: #dc2626; } /* أحمر غامق للـ DVR */
-        .btn-wire { background-color: #16a34a; } /* أخضر زاهي للسلك */
+        .btn-cam { background-color: #0284c7; } 
+        .btn-dvr { background-color: #dc2626; } 
+        .btn-wire { background-color: #16a34a; } 
 
         button:active { 
             transform: scale(0.95);
-            filter: brightness(1.2); /* تفتيح الزر عند الضغط */
+            filter: brightness(1.2); 
         }
 
-        /* لوحة رسم فاتحة لتباين مثالي مع الأجهزة الملونة */
         #canvas-container {
-            border: 3px solid #334155; /* إطار داكن */
-            background-color: #e2e8f0; /* خلفية اللوحة فاتحة ومريحة للرسم */
+            border: 3px solid #334155; 
+            background-color: #e2e8f0; 
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
@@ -92,17 +88,15 @@
     </div>
 
     <script>
-        // ملاءمة حجم شاشات الموبايل
         const canvasWidth = Math.min(window.innerWidth - 24, 420);
         const canvasHeight = 420;
         
         const canvas = new fabric.Canvas('mapCanvas', {
             width: canvasWidth,
             height: canvasHeight,
-            backgroundColor: '#e2e8f0' // لوحة فاتحة تظهر عليها العناصر بوضوح
+            backgroundColor: '#e2e8f0' 
         });
 
-        // إضافة كاميرا بلون أزرق زاهي مائي لسهولة التعرف عليها
         function addCamera() {
             const camGroup = new fabric.Group([
                 new fabric.Circle({ radius: 18, fill: '#0ea5e9', originX: 'center', originY: 'center' }),
@@ -113,10 +107,9 @@
                 hasControls: false
             });
             canvas.add(camGroup);
-            canvas.setActiveObject(camGroup);
+            canvas.renderAll();
         }
 
-        // إضافة DVR بلون أحمر مرجاني غامق وواضح
         function addDVR() {
             const dvrGroup = new fabric.Group([
                 new fabric.Rect({ width: 55, height: 35, fill: '#ef4444', rx: 6, ry: 6, originX: 'center', originY: 'center' }),
@@ -127,20 +120,21 @@
                 hasControls: false
             });
             canvas.add(dvrGroup);
-            canvas.setActiveObject(dvrGroup);
+            canvas.renderAll();
         }
 
-        // شد سلك بلون أخضر نيون فسفوري زاهي جداً ليظهر بوضوح فوق اللوحة الفاتحة
+        // تم إصلاح الخطأ البرمجي هنا بتحديد مصفوفة الإحداثيات [x1, y1, x2, y2] بشكل صحيح لشاشة الموبايل
         function startCable() {
-            const line = new fabric.Line(, {
-                strokeWidth: 4,
+            const line = new fabric.Line([50, 50, 150, 50], {
+                strokeWidth: 5,
                 stroke: '#22c55e', 
                 originX: 'center',
                 originY: 'center',
-                hasControls: true 
+                hasControls: true,
+                padding: 10 // تسهيل الضغط على السلك وسحبه من شاشة الهاتف
             });
             canvas.add(line);
-            canvas.setActiveObject(line);
+            canvas.renderAll();
         }
     </script>
 </body>
