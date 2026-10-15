@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CamZone | نظام تخطيط الشبكات الملون</title>
+    <title>CamZone | مخطط شبكات الموبايل المتكامل</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <script src="https://cloudflare.com"></script>
     <style>
@@ -17,51 +17,46 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            overscroll-behavior-y: contain; 
         }
 
-        h1 { 
-            font-size: 20px; 
-            margin-bottom: 5px; 
-            color: #f8fafc; 
-            text-align: center;
-        }
-
-        p { 
-            font-size: 13px; 
-            color: #94a3b8; 
-            margin: 0 0 15px 0; 
-            text-align: center; 
-        }
+        h1 { font-size: 20px; margin-bottom: 5px; color: #f8fafc; text-align: center; }
+        p { font-size: 13px; color: #94a3b8; margin: 0 0 15px 0; text-align: center; }
 
         .controls {
             display: flex;
+            flex-wrap: wrap;
             gap: 8px;
             margin-bottom: 15px;
             width: 100%;
             max-width: 420px;
         }
 
-        button {
+        button, .file-label {
             flex: 1;
+            min-width: 90px;
             padding: 12px 5px;
             color: #ffffff;
             border: none;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 12px;
             cursor: pointer;
+            text-align: center;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            transition: transform 0.1s;
         }
 
         .btn-cam { background-color: #0284c7; } 
         .btn-dvr { background-color: #dc2626; } 
         .btn-wire { background-color: #16a34a; } 
+        .btn-upload { background-color: #6b21a8; display: inline-block; }
 
-        button:active { 
+        button:active, .file-label:active { 
             transform: scale(0.95);
             filter: brightness(1.2); 
         }
+
+        #upload-plan { display: none; }
 
         #canvas-container {
             border: 3px solid #334155; 
@@ -69,18 +64,25 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
     </style>
 </head>
 <body>
 
     <h1>مخطط شبكات <span style="color: #0ea5e9;">Cam</span><span style="color: #22c55e;">Zone</span></h1>
-    <p>توزيع ألوان ذكي لمساعدة الفني على التخطيط بدون تشتيت</p>
+    <p>ارفع كروكي الموقع ثم وزع الكاميرات وشد الأسلاك بإصبعك</p>
 
     <div class="controls">
-        <button class="btn-cam" onclick="addCamera()">📷 إضافة كاميرا</button>
-        <button class="btn-dvr" onclick="addDVR()">📟 إضافة DVR</button>
-        <button class="btn-wire" onclick="startCable()">🧵 شد سلك</button>
+        <!-- زر رفع كروكي أو مخطط الموقع -->
+        <label for="upload-plan" class="file-label btn-upload">🗺️ رفع المخطط</label>
+        <input type="file" id="upload-plan" accept="image/*" onchange="loadBackground(event)">
+        
+        <button class="btn-cam" onclick="addCamera()">📷 كاميرا</button>
+        <button class="btn-dvr" onclick="addDVR()">📟 DVR</button>
+        <button class="btn-wire" onclick="startCable()">🧵 سلك</button>
     </div>
 
     <div id="canvas-container">
@@ -94,46 +96,72 @@
         const canvas = new fabric.Canvas('mapCanvas', {
             width: canvasWidth,
             height: canvasHeight,
-            backgroundColor: '#e2e8f0' 
+            backgroundColor: '#e2e8f0',
+            allowTouchScrolling: false 
         });
 
+        // دالة رفع وقراءة صورة مخطط الموقع وجعلها خلفية للوحة الرسم
+        function loadBackground(e) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const imgObj = new Image();
+                imgObj.src = event.target.result;
+                imgObj.onload = function () {
+                    const image = new fabric.Image(imgObj);
+                    // ضبط مقاس الصورة المرفوعة لتناسب أبعاد اللوحة تماماً
+                    image.set({
+                        scaleX: canvasWidth / image.width,
+                        scaleY: canvasHeight / image.height,
+                        selectable: false
+                    });
+                    canvas.setBackgroundImage(image, canvas.renderAll.bind(canvas));
+                }
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        }
+
+        // إضافة كاميرا (تم استبدال الإيموجي بأشكال صريحة لضمان الظهور الفوري)
         function addCamera() {
-            const camGroup = new fabric.Group([
-                new fabric.Circle({ radius: 18, fill: '#0ea5e9', originX: 'center', originY: 'center' }),
-                new fabric.Text('📷', { fontSize: 16, originX: 'center', originY: 'center' })
-            ], {
-                left: 40,
-                top: 40,
+            const circle = new fabric.Circle({ radius: 16, fill: '#0ea5e9', originX: 'center', originY: 'center' });
+            const text = new fabric.Text('CAM', { fontSize: 10, fill: '#ffffff', fontWeight: 'bold', originX: 'center', originY: 'center' });
+            
+            const camGroup = new fabric.Group([circle, text], {
+                left: 50,
+                top: 50,
                 hasControls: false
             });
             canvas.add(camGroup);
+            canvas.setActiveObject(camGroup);
             canvas.renderAll();
         }
 
+        // إضافة DVR بشكل هندسي يظهر على كافة شاشات الهواتف
         function addDVR() {
-            const dvrGroup = new fabric.Group([
-                new fabric.Rect({ width: 55, height: 35, fill: '#ef4444', rx: 6, ry: 6, originX: 'center', originY: 'center' }),
-                new fabric.Text('DVR', { fontSize: 11, fill: '#ffffff', fontWeight: 'bold', originX: 'center', originY: 'center' })
-            ], {
-                left: 140,
-                top: 140,
+            const rect = new fabric.Rect({ width: 50, height: 30, fill: '#ef4444', rx: 4, ry: 4, originX: 'center', originY: 'center' });
+            const text = new fabric.Text('DVR', { fontSize: 10, fill: '#ffffff', fontWeight: 'bold', originX: 'center', originY: 'center' });
+            
+            const dvrGroup = new fabric.Group([rect, text], {
+                left: 150,
+                top: 150,
                 hasControls: false
             });
             canvas.add(dvrGroup);
+            canvas.setActiveObject(dvrGroup);
             canvas.renderAll();
         }
 
-        // تم إصلاح الخطأ البرمجي هنا بتحديد مصفوفة الإحداثيات [x1, y1, x2, y2] بشكل صحيح لشاشة الموبايل
+        // شد سلك مرن وقابل للمط والتحريك باللمس
         function startCable() {
-            const line = new fabric.Line([50, 50, 150, 50], {
-                strokeWidth: 5,
+            const line = new fabric.Line([40, 80, 160, 80], {
+                strokeWidth: 6, 
                 stroke: '#22c55e', 
                 originX: 'center',
                 originY: 'center',
-                hasControls: true,
-                padding: 10 // تسهيل الضغط على السلك وسحبه من شاشة الهاتف
+                hasControls: true, 
+                padding: 15 
             });
             canvas.add(line);
+            canvas.setActiveObject(line);
             canvas.renderAll();
         }
     </script>
